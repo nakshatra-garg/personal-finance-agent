@@ -49,7 +49,7 @@ Upload and analyze financial documents:
 
 ### Prerequisites
 - Python 3.8 or higher
-- API key for at least one LLM provider (Groq recommended)
+- API key for at least one LLM provider (Groq recommended - free tier available)
 
 ### Setup
 
@@ -74,7 +74,29 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Configure API keys:
+4. **Run the application:**
+```bash
+streamlit run app.py
+```
+
+### API Key Configuration
+
+You have **two options** to configure API keys:
+
+#### Option 1: Configure through UI (Quick & Easy - Session Only)
+1. Run the app: `streamlit run app.py`
+2. Open the sidebar (click arrow if collapsed)
+3. Expand any provider section (Groq, OpenAI, Azure, Perplexity)
+4. Enter your API key
+5. Click "Test" to validate the key
+6. Click "Save" if the test passes
+7. Select your provider and model from the "Active LLM" section
+
+**⚠️ Important:** Keys entered through the UI are **session-only** and will be cleared when you close your browser. This is by design for security.
+
+**This is the easiest method** - no files to edit, perfect for testing!
+
+#### Option 2: Use .env file (Persistent - Recommended for regular use)
 ```bash
 # Copy the example env file
 cp .env.example .env
@@ -94,6 +116,10 @@ AZURE_OPENAI_API_KEY=your_azure_key_here
 AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
 PERPLEXITY_API_KEY=your_perplexity_key_here
 ```
+
+**Use this if:** You want keys to persist across sessions and don't want to re-enter them each time.
+
+**Note:** Keys configured through the UI take precedence over .env file keys during that session.
 
 ### Getting API Keys
 
@@ -132,8 +158,11 @@ The app will open in your default browser at `http://localhost:8501`
 ### Workflow
 
 1. **Configure LLM Provider**
-   - Use the sidebar to select your LLM provider and model
-   - The app will only show providers with valid API keys
+   - Open the sidebar and expand the "API Configuration" section
+   - Click on any provider (Groq, OpenAI, Azure, Perplexity)
+   - Enter your API key and click "Test" to validate
+   - Once validated, select the provider and model from "Active LLM" dropdown
+   - You can also switch between configured providers anytime!
 
 2. **Upload Documents**
    - Go to "Upload Documents" tab

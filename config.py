@@ -59,28 +59,37 @@ class LLMConfig:
     }
 
     @staticmethod
-    def get_api_key(provider: str) -> str:
-        """Get API key for the specified provider."""
+    def get_api_key(provider: str, session_keys: Dict[str, str] = None) -> str:
+        """Get API key for the specified provider from session state or env."""
         config = LLMConfig.PROVIDERS.get(provider)
         if not config:
             raise ValueError(f"Unknown provider: {provider}")
+
+        # Check session state first, then fallback to environment
+        if session_keys and provider in session_keys:
+            return session_keys[provider]
         return os.getenv(config["api_key_env"], "")
 
     @staticmethod
-    def get_endpoint(provider: str) -> str:
+    def get_endpoint(provider: str, session_endpoints: Dict[str, str] = None) -> str:
         """Get endpoint for providers that need it (Azure)."""
         config = LLMConfig.PROVIDERS.get(provider)
         if config and "endpoint_env" in config:
+            # Check session state first
+            if session_endpoints and f"{provider}_endpoint" in session_endpoints:
+                return session_endpoints[f"{provider}_endpoint"]
             return os.getenv(config["endpoint_env"], "")
         return ""
 
     @staticmethod
-    def get_available_providers() -> list:
-        """Get list of providers with valid API keys."""
+    def get_available_providers(session_keys: Dict[str, str] = None) -> list:
+        """Get list of providers with valid API keys from session or env."""
         available = []
         for provider, config in LLMConfig.PROVIDERS.items():
-            api_key = os.getenv(config["api_key_env"])
-            if api_key:
+            # Check session state first
+            if session_keys and provider in session_keys and session_keys[provider]:
+                available.append(provider)
+            elif os.getenv(config["api_key_env"]):
                 available.append(provider)
         return available
 

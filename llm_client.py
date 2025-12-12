@@ -10,15 +10,23 @@ from config import LLMConfig
 class LLMClient:
     """Unified interface for multiple LLM providers."""
 
-    def __init__(self, provider: str, model: Optional[str] = None):
+    def __init__(
+        self,
+        provider: str,
+        model: Optional[str] = None,
+        session_keys: Optional[Dict[str, str]] = None,
+        session_endpoints: Optional[Dict[str, str]] = None
+    ):
         """Initialize the LLM client with specified provider."""
         self.provider = provider
         self.model = model or LLMConfig.get_default_model(provider)
+        self.session_keys = session_keys or {}
+        self.session_endpoints = session_endpoints or {}
         self.client = self._initialize_client()
 
     def _initialize_client(self):
         """Initialize the appropriate client based on provider."""
-        api_key = LLMConfig.get_api_key(self.provider)
+        api_key = LLMConfig.get_api_key(self.provider, self.session_keys)
 
         if not api_key:
             raise ValueError(f"API key not found for provider: {self.provider}")
@@ -30,7 +38,7 @@ class LLMClient:
             return OpenAI(api_key=api_key)
 
         elif self.provider == "azure":
-            endpoint = LLMConfig.get_endpoint(self.provider)
+            endpoint = LLMConfig.get_endpoint(self.provider, self.session_endpoints)
             if not endpoint:
                 raise ValueError("Azure OpenAI endpoint not configured")
             return AzureOpenAI(
@@ -99,6 +107,11 @@ class LLMClient:
                     yield delta.content
 
 
-def get_llm_client(provider: str, model: Optional[str] = None) -> LLMClient:
+def get_llm_client(
+    provider: str,
+    model: Optional[str] = None,
+    session_keys: Optional[Dict[str, str]] = None,
+    session_endpoints: Optional[Dict[str, str]] = None
+) -> LLMClient:
     """Factory function to create LLM client."""
-    return LLMClient(provider, model)
+    return LLMClient(provider, model, session_keys, session_endpoints)
